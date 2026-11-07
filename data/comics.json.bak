@@ -1,0 +1,8 @@
+{"comics":[
+{"id":"GENL-0001","comicNumber":"GENL-0001","comicName":"Nagraj Ka Pehla Mission","year":1995,"set":"GENL","heroes":["Nagraj","Dhruv"],"categories":["Action","Adventure"],"publisher":"Raj Comics","images":["images/GENL-0001/001.jpg","images/GENL-0001/002.jpg"],"language":"Hindi","viewer":"comics-viewer.html"},
+{"id":"GENL-0002","comicNumber":"GENL-0002","comicName":"Dhruv Ki Khoj","year":1998,"set":"GENL","heroes":["Dhruv"],"categories":["Mystery"],"images":["images/GENL-0002/001.jpg"],"language":"Hindi"},
+{"id":"SPCL-0001","comicNumber":"SPCL-0001","comicName":"Super Commando Special","year":2001,"set":"SPCL","heroes":["Super Commando Dhruv"],"categories":["Action"],"images":["images/SPCL-0001/001.jpg"],"language":"Hindi"},
+{"id":"DIGL-0001","comicNumber":"DIGL-0001","comicName":"Digest Collection One","year":2005,"set":"DIGL","heroes":["Doga","Bhokal"],"categories":["Adventure"],"images":["images/DIGL-0001/001.jpg"],"language":"English"},
+{"id":"MANOJ-0001","comicNumber":"MANOJ-0001","comicName":"Manoj Gupta Classic","year":1990,"set":"MANOJ","heroes":["Nagraj"],"categories":["Fantasy"],"images":["images/MANOJ-0001/001.jpg"],"language":"Hindi"},
+{"id":"OTHER-0001","comicNumber":"OTHER-0001","comicName":"Untitled Edition","set":"OTHER","heroes":[],"categories":[],"images":[]}
+]}

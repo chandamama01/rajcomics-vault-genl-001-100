@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comic Viewer | ComicVault</title>
+<script>try{document.documentElement.dataset.theme=JSON.parse(localStorage.getItem('rajComics.settings')).theme==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>tailwind.config={theme:{extend:{colors:{ink:'rgb(var(--ink) / <alpha-value>)',panel:'rgb(var(--panel) / <alpha-value>)',edge:'rgb(var(--edge) / <alpha-value>)',fg:'rgb(var(--fg) / <alpha-value>)',muted:'rgb(var(--muted) / <alpha-value>)',subtle:'rgb(var(--subtle) / <alpha-value>)',gold:'rgb(var(--gold) / <alpha-value>)','on-gold':'rgb(var(--on-gold) / <alpha-value>)',brand:'#e63946'},fontFamily:{display:['"Bebas Neue"','Impact','sans-serif']}}}}</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/viewer-style.css">
+</head>
+<body class="flex min-h-screen flex-col bg-ink text-fg">
+<div id="app-header" data-page="viewer"></div>
+<main class="mx-auto w-full max-w-7xl flex-1 px-4 py-4">
+  <section id="meta" class="mb-2" aria-label="Comic details"></section>
+  <p id="live" class="sr-only" role="status" aria-live="polite"></p>
+  <div id="reader">
+    <div id="toolbar" class="stick z-30 flex flex-nowrap items-center justify-between gap-2 bg-ink/95 py-1 sm:flex-wrap sm:gap-x-4">
+      <div id="options" class="flex items-center gap-2 text-sm sm:gap-3">
+        <div role="group" aria-label="Reading mode" class="flex overflow-hidden rounded border border-edge">
+          <button type="button" data-mode="single" aria-label="Single page" title="Single page"><svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="1"/></svg><span class="hidden sm:inline">Single page</span></button>
+          <button type="button" data-mode="continuous" aria-label="Continuous scroll" title="Continuous scroll"><svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="9" rx="1"/><rect x="7" y="13" width="10" height="9" rx="1"/></svg><span class="hidden sm:inline">Continuous</span></button>
+        </div>
+        <label class="hidden items-center gap-2 sm:flex">Go to page <input id="goto" type="number" min="1" class="w-20 rounded border border-edge bg-ink px-2 py-1"></label>
+        <button id="fs" type="button" aria-label="Fullscreen" title="Fullscreen" class="flex items-center gap-1 rounded border border-edge px-2 py-1.5 hover:border-gold sm:px-3"><svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="hidden sm:inline">Fullscreen</span></button>
+      </div>
+      <div id="topPager" class="order-first sm:order-last"></div>
+    </div>
+    <div id="pages" class="py-2" aria-label="Comic pages"></div>
+    <div id="bottomPager"></div>
+  </div>
+</main>
+<div id="app-footer"></div>
+<template id="pagerTpl">
+  <div data-pager class="flex flex-nowrap items-center justify-center gap-1 sm:flex-wrap sm:gap-2 sm:py-1">
+    <button type="button" data-nav="first" aria-label="First page" title="First page" class="rounded border border-edge bg-panel px-2.5 py-1.5 text-sm hover:border-gold disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"><span aria-hidden="true" class="sm:hidden">&laquo;</span><span class="hidden sm:inline">First</span></button>
+    <button type="button" data-nav="prev" aria-label="Previous page" title="Previous page" class="rounded border border-edge bg-panel px-2.5 py-1.5 text-sm hover:border-gold disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"><span aria-hidden="true" class="sm:hidden">&lsaquo;</span><span class="hidden sm:inline">Previous</span></button>
+    <span data-counter class="min-w-14 whitespace-nowrap text-center text-sm text-fg/80 sm:min-w-28"><span class="sm:hidden"><input data-goto type="text" inputmode="numeric" pattern="[0-9]*" aria-label="Go to page" value="1" class="w-9 rounded border border-edge bg-ink px-1 py-0.5 text-center text-sm"> / <span data-total>1</span></span><span class="hidden sm:inline">Page 1 of 1</span></span>
+    <button type="button" data-nav="next" aria-label="Next page" title="Next page" class="rounded border border-edge bg-panel px-2.5 py-1.5 text-sm hover:border-gold disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"><span aria-hidden="true" class="sm:hidden">&rsaquo;</span><span class="hidden sm:inline">Next</span></button>
+    <button type="button" data-nav="last" aria-label="Last page" title="Last page" class="rounded border border-edge bg-panel px-2.5 py-1.5 text-sm hover:border-gold disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"><span aria-hidden="true" class="sm:hidden">&raquo;</span><span class="hidden sm:inline">Last</span></button>
+  </div>
+</template>
+<script src="js/common.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

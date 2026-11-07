@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comic Library | ComicVault</title>
+<script>try{document.documentElement.dataset.theme=JSON.parse(localStorage.getItem('rajComics.settings')).theme==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>tailwind.config={theme:{extend:{colors:{ink:'rgb(var(--ink) / <alpha-value>)',panel:'rgb(var(--panel) / <alpha-value>)',edge:'rgb(var(--edge) / <alpha-value>)',fg:'rgb(var(--fg) / <alpha-value>)',muted:'rgb(var(--muted) / <alpha-value>)',subtle:'rgb(var(--subtle) / <alpha-value>)',gold:'rgb(var(--gold) / <alpha-value>)','on-gold':'rgb(var(--on-gold) / <alpha-value>)',brand:'#e63946'},fontFamily:{display:['"Bebas Neue"','Impact','sans-serif']}}}}</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="flex min-h-screen flex-col bg-ink text-fg">
+<div id="app-header" data-page="library"></div>
+<main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
+  <div class="flex flex-wrap items-end justify-between gap-2">
+    <div>
+      <h1 class="font-display text-5xl tracking-wide">Comic Library</h1>
+      <p class="text-muted">Browse and read your comic collection by series, hero, year and language.</p>
+    </div>
+    <p id="total" class="text-sm text-muted" aria-live="polite"></p>
+  </div>
+
+
+  <section aria-label="Search and filters" class="sticky top-[3.2rem] z-30 mt-3 rounded-lg border border-edge bg-panel/95 p-2 backdrop-blur">
+    <div class="flex flex-wrap items-center gap-2">
+      <label class="min-w-0 flex-1 basis-40">
+        <span class="sr-only">Search by comic number, name or hero</span>
+        <input id="search" type="search" placeholder="Search number, name or hero" class="w-full rounded border border-edge bg-ink px-2 py-1.5 text-sm placeholder:text-subtle">
+      </label>
+      <button id="filterToggle" type="button" aria-expanded="false" aria-controls="filters" class="rounded border border-edge px-2.5 py-1.5 text-sm md:hidden">Filters</button>
+      <div id="filters" class="order-last hidden w-full grid-cols-2 gap-2 md:order-none md:contents">
+        <label><span class="sr-only">Year</span><select id="year" class="w-full rounded border border-edge bg-ink px-2 py-1.5 text-sm md:w-auto"></select></label>
+        <label><span class="sr-only">Language</span><select id="lang" class="w-full rounded border border-edge bg-ink px-2 py-1.5 text-sm md:w-auto"></select></label>
+        <label><span class="sr-only">Category</span><select id="cat" class="w-full rounded border border-edge bg-ink px-2 py-1.5 text-sm md:w-auto"></select></label>
+        <label><span class="sr-only">Sort by</span>
+          <select id="sort" class="w-full rounded border border-edge bg-ink px-2 py-1.5 text-sm md:w-auto">
+            <option value="number-asc">Number: low to high</option><option value="number-desc">Number: high to low</option>
+            <option value="name-asc">Name: A to Z</option><option value="name-desc">Name: Z to A</option>
+            <option value="year-asc">Year: oldest first</option><option value="year-desc">Year: newest first</option>
+          </select></label>
+        <button id="clear" type="button" class="hidden rounded border border-brand px-2.5 py-1.5 text-sm text-brand hover:bg-brand hover:text-white">Clear filters</button>
+      </div>
+      <div class="flex overflow-hidden rounded border border-edge" role="group" aria-label="Layout">
+        <button type="button" data-layout="grid">Grid</button>
+        <button type="button" data-layout="list">List</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="notice" class="mt-3 hidden items-center justify-between rounded border border-gold/50 bg-gold/10 px-3 py-2 text-sm text-gold" role="status"></div>
+  <p id="count" class="mt-4 text-sm text-muted" aria-live="polite"></p>
+  <section id="results" aria-label="Comics" class="mt-3"></section>
+</main>
+<div id="app-footer"></div>
+<script src="js/common.js"></script>
+<script src="js/gallery.js"></script>
+</body>
+</html>

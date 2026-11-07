@@ -1,0 +1,3 @@
+.stick{position:sticky;top:3.2rem}
+#reader:fullscreen{background:rgb(var(--ink));overflow:auto;padding:0 1rem}
+#reader:fullscreen .stick{top:0}
