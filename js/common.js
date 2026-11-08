@@ -6,8 +6,8 @@
   // Single source of truth: [default, validator]. New fields added here get defaults for existing users automatically.
   const FIELDS = {
     theme: ['dark', oneOf(['dark', 'light'])], fontSize: [16, num(14, 20)],
-    readingMode: ['single', oneOf(['single', 'continuous'])], pageFit: ['width', oneOf(['width', 'height', 'original'])],
-    readingWidth: [1000, num(600, 1600)], rememberPosition: [true, bool], keyboardNavigation: [true, bool],
+    readingMode: ['continuous', oneOf(['single', 'continuous'])], pageFit: ['width', oneOf(['width', 'height', 'original'])],
+    readingWidth: [1600, num(600, 1600)], rememberPosition: [true, bool], keyboardNavigation: [true, bool],
     showPageCounter: [true, bool], showMetadata: [true, bool],
     libraryLayout: ['grid', oneOf(['grid', 'list'])], librarySort: ['number-asc', oneOf(SORTS)]
   };

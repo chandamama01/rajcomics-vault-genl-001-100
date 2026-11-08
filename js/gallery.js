@@ -14,7 +14,7 @@
     if (!id || !name) return null;
     const y = parseInt(r.year, 10), v = String(r.viewer || '');
     return { id, number: String(r.comicNumber || id), name, year: Number.isFinite(y) ? y : null,
-      heroes: arr(r.heroes), cats: arr(r.categories), lang: String(r.language || '').trim(), images: arr(r.images),
+      heroes: arr(r.heroes), cats: arr(r.categories), lang: String(r.language || '').trim(), images: arr(r.images), thumbnail: typeof r.thumbnail === 'string' ? r.thumbnail.trim() : '',
       viewer: /^[\w.-]+\.html$/.test(v) ? v : 'comics-viewer.html' };
   }
   const cmp = { number: (a, b) => a.number.localeCompare(b.number, undefined, { numeric: true }), name: (a, b) => a.name.localeCompare(b.name), year: (a, b) => (a.year ?? 0) - (b.year ?? 0) };
@@ -28,15 +28,16 @@
 
   const href = c => `${c.viewer}?comic=${encodeURIComponent(c.id)}`;
   const ph = c => `<div class="ph flex h-full w-full items-center justify-center bg-edge p-2 text-center font-display text-2xl text-muted">${esc(c.number)}</div>`;
-  const cover = c => c.images[0] ? `<img src="${esc(c.images[0])}" data-n="${esc(c.number)}" alt="Cover of ${esc(c.name)}" loading="lazy" class="block h-auto w-full">` : ph(c);
-  const card = c => `<a href="${href(c)}" class="group flex flex-col overflow-hidden rounded-lg border border-edge bg-panel transition hover:-translate-y-1 hover:border-gold">
-    <div class="relative aspect-[2/3] overflow-hidden bg-edge">${cover(c)}
+  const LOADER = '<span class="rc-loader pointer-events-none absolute inset-0 z-10 flex items-center justify-center"><span class="h-9 w-9 animate-spin rounded-full border-4 border-edge border-t-gold"></span></span>';
+  const cover = c => { const u = c.thumbnail || c.images[0]; return u ? `${LOADER}<img src="${esc(u)}" data-n="${esc(c.number)}" alt="Cover of ${esc(c.name)}" loading="lazy" decoding="async" class="block h-auto w-full opacity-0 transition-opacity duration-300">` : ph(c); };
+  const card = c => `<a href="${href(c)}" class="group flex h-full flex-col overflow-hidden rounded-lg border border-edge bg-panel transition hover:-translate-y-1 hover:border-gold">
+    <div class="relative overflow-hidden bg-edge" style="aspect-ratio:var(--cover-ar,2/3)">${cover(c)}
       <span class="absolute inset-x-0 bottom-0 translate-y-full bg-brand py-2 text-center text-white font-display text-lg tracking-wide transition group-hover:translate-y-0 group-focus-visible:translate-y-0">Read comic</span></div>
-    <div class="p-3"><div class="flex justify-between text-xs text-muted"><span>${esc(c.number)}</span><span>${c.year ?? ''}</span></div>
-      <h3 class="line-clamp-2 font-semibold">${esc(c.name)}</h3>
-      <p class="line-clamp-1 text-sm text-muted">${esc(c.heroes.join(', '))}</p><p class="text-xs text-subtle">${esc(c.lang)}</p></div></a>`;
+    <div class="px-2 pb-2.5 pt-2"><div class="flex h-4 justify-between gap-2 text-xs leading-4 text-muted"><span>${esc(c.number)}</span><span class="truncate">${esc([c.year, c.lang].filter(Boolean).join(' | '))}</span></div>
+      <h3 class="line-clamp-2 text-sm font-semibold leading-5">${esc(c.name)}</h3>
+      ${c.heroes.length ? `<p class="truncate text-xs leading-4 text-muted">${esc(c.heroes.join(', '))}</p>` : ''}</div></a>`;
   const row = c => `<a href="${href(c)}" class="group flex gap-4 rounded-lg border border-edge bg-panel p-3 transition hover:border-gold">
-    <div class="aspect-[2/3] w-20 shrink-0 self-start overflow-hidden rounded bg-edge sm:w-24">${cover(c)}</div>
+    <div class="relative w-20 shrink-0 self-start overflow-hidden rounded bg-edge sm:w-24" style="aspect-ratio:var(--cover-ar,2/3)">${cover(c)}</div>
     <div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-2 text-xs text-muted"><span>${esc(c.number)}</span><span>${c.year ?? ''}</span><span>${esc(c.lang)}</span></div>
       <h3 class="mt-1 text-lg font-semibold">${esc(c.name)}</h3>
       <p class="text-sm text-fg/80">${esc(c.heroes.join(', '))}</p><p class="text-sm text-subtle">${esc(c.cats.join(', '))}</p></div>
@@ -64,7 +65,7 @@
       res.className = '';
       res.innerHTML = '<div class="rounded-lg border border-dashed border-edge p-10 text-center"><p class="text-lg">No comics match your search.</p><p class="text-muted">Try different words or remove a filter.</p><button type="button" data-act="clear" class="mt-4 rounded bg-brand px-4 py-2 text-white">Clear filters</button></div>';
     } else {
-      res.className = layout === 'grid' ? 'grid grid-cols-2 items-start gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6' : 'flex flex-col gap-3';
+      res.className = layout === 'grid' ? 'grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6' : 'flex flex-col gap-3';
       res.innerHTML = list.map(layout === 'grid' ? card : row).join('');
     }
     syncUrl();
@@ -121,10 +122,13 @@
     const a = e.target.closest('[data-act]')?.dataset.act;
     if (a === 'clear') clearAll(); else if (a === 'retry') load(); else if (a === 'dismiss') $('#notice').classList.replace('flex', 'hidden');
   });
-  // Reserve a 2:3 box while loading, then let each cover take its own full, uncropped shape.
-  res.addEventListener('load', e => { if (e.target.tagName === 'IMG') e.target.parentElement.classList.remove('aspect-[2/3]'); }, true);
+  // Lazy images fade in when loaded; the spinner (shown only if loading is slow) is removed.
+  res.addEventListener('load', e => { const i = e.target; if (i.tagName !== 'IMG') return;
+    // Match placeholder boxes to the real thumbnail shape, and let each loaded cover keep its own full shape (no gaps, no cropping).
+    if (!res.style.getPropertyValue('--cover-ar') && i.naturalWidth) res.style.setProperty('--cover-ar', `${i.naturalWidth}/${i.naturalHeight}`);
+    i.parentElement.style.aspectRatio = 'auto'; i.classList.replace('opacity-0', 'opacity-100'); i.parentElement.querySelector('.rc-loader')?.remove(); }, true);
   res.addEventListener('error', e => {
-    if (e.target.tagName === 'IMG') e.target.outerHTML = ph({ number: e.target.dataset.n });
+    if (e.target.tagName === 'IMG') { e.target.parentElement.querySelector('.rc-loader')?.remove(); e.target.outerHTML = ph({ number: e.target.dataset.n }); }
   }, true);
   load();
 })();

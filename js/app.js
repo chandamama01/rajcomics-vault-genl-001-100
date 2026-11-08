@@ -16,9 +16,10 @@
     pages.innerHTML = `<div class="rounded-lg border border-brand/50 bg-brand/10 p-8 text-center" role="alert"><p class="text-lg">${esc(title)}</p><p class="mt-1 text-fg/80">${esc(msg)}</p><a href="index.html" class="mt-4 inline-block rounded bg-brand px-4 py-2 text-white">Back to library</a></div>`;
   }
   const fallback = n => `<div class="flex min-h-[40vh] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-edge bg-panel p-8 text-center"><p>Page ${n} could not be loaded.</p><button type="button" data-retry="${n}" class="rounded bg-brand px-4 py-2 text-white">Retry</button></div>`;
-  const imgTag = (n, loading) => `<img src="${esc(st.comic.images[n - 1])}" data-i="${n}" alt="Page ${n} of ${esc(st.comic.comicName)}" loading="${loading}" decoding="async" class="${FIT[fit()]}">`;
+  const LOADER = '<span class="rc-loader pointer-events-none absolute inset-0 z-10 flex items-center justify-center"><span class="h-9 w-9 animate-spin rounded-full border-4 border-edge border-t-gold"></span></span>';
+  const imgTag = (n, loading) => `${LOADER}<img src="${esc(st.comic.images[n - 1])}" data-i="${n}" alt="Page ${n} of ${esc(st.comic.comicName)}" loading="${loading}" decoding="async" class="${FIT[fit()]}">`;
   const figStyle = () => fit() === 'original' ? 'overflow-x:auto' : fit() === 'width' ? 'max-width:min(var(--w),100%)' : '';
-  const fig = (n, loading) => `<figure data-i="${n}" class="mx-auto mb-3 min-h-[60vh] scroll-mt-28 bg-panel" style="${figStyle()}">${imgTag(n, loading)}</figure>`;
+  const fig = (n, loading) => `<figure data-i="${n}" class="relative mx-auto mb-3 min-h-[60vh] scroll-mt-28 bg-panel" style="${figStyle()}">${imgTag(n, loading)}</figure>`;
 
   function renderSingle() {
     pages.innerHTML = fig(st.page, 'eager');
@@ -61,6 +62,7 @@
   }
   // Every navigation source (toolbars, keys, go-to box, scroll observer) calls this one function.
   function goTo(n, { scroll = true, instant = false } = {}) {
+    if (typeof n === 'string' && !n.trim()) return;
     n = Math.round(Number(n)); if (!Number.isFinite(n) || !st.total) return;
     n = Math.min(st.total, Math.max(1, n));
     const changed = n !== st.page; st.page = n;
@@ -115,12 +117,12 @@
     else if (mode && mode !== st.mode) { st.mode = mode; settings.set({ readingMode: mode }); render(); }
     else if (retry) {
       const n = +retry, f = pages.querySelector(`figure[data-i="${n}"]`);
-      f.innerHTML = imgTag(n, 'eager'); const im = $('img', f); im.src += (im.src.includes('?') ? '&' : '?') + 'r=' + Date.now();
+      f.classList.add('min-h-[60vh]', 'bg-panel'); f.innerHTML = imgTag(n, 'eager'); const im = $('img', f); im.src += (im.src.includes('?') ? '&' : '?') + 'r=' + Date.now();
     }
   });
-  $('#goto').addEventListener('change', e => goTo(e.target.value));
+  $('#goto').addEventListener('change', e => { goTo(e.target.value); updatePagination(); });
   // Counter input inside both pagination toolbars (phones): same goTo, so both stay in sync.
-  reader.addEventListener('change', e => { if (e.target.matches('[data-goto]')) { goTo(e.target.value); updatePagination(); } });
+  reader.addEventListener('change', e => { if (e.target.matches('[data-goto]')) { goTo(e.target.value); updatePagination(); e.target.value = st.page; } });
   reader.addEventListener('focusin', e => { if (e.target.matches('[data-goto]')) e.target.select(); });
   $('#fs').addEventListener('click', () => document.fullscreenElement ? document.exitFullscreen() : reader.requestFullscreen?.());
   document.addEventListener('fullscreenchange', () => {
@@ -130,7 +132,7 @@
   // Images do not bubble load/error events, so listen in the capture phase.
   pages.addEventListener('load', e => {
     const im = e.target; if (im.tagName !== 'IMG') return;
-    im.parentElement.classList.remove('min-h-[60vh]', 'bg-panel');
+    im.parentElement.classList.remove('min-h-[60vh]', 'bg-panel'); im.parentElement.querySelector('.rc-loader')?.remove();
     if (st.mode === 'continuous' && Date.now() < alignUntil && +im.dataset.i < st.page) scrollToPage('auto');
   }, true);
   pages.addEventListener('error', e => {
